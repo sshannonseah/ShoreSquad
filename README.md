@@ -10,9 +10,11 @@ ShoreSquad is a modern Progressive Web App (PWA) designed to mobilize young peop
 
 ### 🗺️ **Interactive Map**
 - Real-time cleanup event discovery
+- **Embedded Google Maps** showing next cleanup at Pasir Ris Beach
 - Location-based event filtering
 - Weather overlay integration
 - Crew location sharing
+- **Coordinates**: 1.381497, 103.955574 (Street View Asia)
 
 ### 🌤️ **Smart Weather Tracking**
 - Current conditions for cleanup planning
@@ -73,6 +75,11 @@ ShoreSquad is a modern Progressive Web App (PWA) designed to mobilize young peop
 4. **Open in browser**
    Navigate to `http://localhost:3000`
 
+5. **Setup Google Maps (Optional)**
+   - See `GOOGLE_MAPS_SETUP.md` for detailed instructions
+   - Get a Google Maps API key for full functionality
+   - The map will show basic functionality without an API key
+
 ### NPM Scripts
 - `npm start` - Start Live Server on all interfaces (0.0.0.0:3000)
 - `npm run dev` - Start development server with file watching
@@ -92,7 +99,8 @@ ShoreSquad/
 ├── sw.js                  # Service Worker for offline functionality
 ├── package.json           # Dependencies and scripts
 ├── .gitignore            # Git ignore rules
-└── README.md             # This file
+├── README.md             # This file
+└── GOOGLE_MAPS_SETUP.md  # Google Maps API setup instructions
 ```
 
 ## 🛠️ Technical Implementation
@@ -196,8 +204,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🔮 Future Enhancements
 
-- Real weather API integration
-- Interactive map with markers
+- **Real weather API integration**
+- **Advanced map features** with custom markers and clustering
 - Photo upload and sharing
 - Gamification system with points/badges
 - Push notification system
@@ -205,6 +213,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Database integration
 - Admin panel for event management
 - Analytics dashboard
+- **Multiple cleanup locations** with route planning
 
 ---
 

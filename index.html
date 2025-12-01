@@ -154,14 +154,40 @@
         <!-- Map Section -->
         <section id="map" class="map-section" aria-labelledby="map-heading">
             <div class="map-section__container">
-                <h2 id="map-heading" class="map-section__title">Find cleanup events near you</h2>
+                <h2 id="map-heading" class="map-section__title">Next cleanup: Pasir Ris Beach</h2>
+                
+                <!-- 
+                Google Maps Embed Instructions:
+                1. Get a Google Maps API key from Google Cloud Console
+                2. Enable Maps Embed API
+                3. Replace "YOUR_API_KEY_HERE" with your actual API key
+                4. The map shows Pasir Ris cleanup location at coordinates 1.381497, 103.955574
+                -->
                 
                 <div class="map-container">
-                    <div id="map-placeholder" class="map-placeholder">
-                        <div class="map-placeholder__content">
-                            <p class="map-placeholder__text">Interactive map loading...</p>
-                            <button class="btn btn--secondary" id="enable-location-btn">
-                                📍 Enable Location Services
+                    <div class="map-embed">
+                        <iframe 
+                            src="https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY_HERE&q=1.381497,103.955574&maptype=satellite&zoom=15&center=1.381497,103.955574"
+                            width="100%" 
+                            height="400" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            referrerpolicy="no-referrer-when-downgrade"
+                            title="Next Cleanup Location - Pasir Ris"
+                            aria-label="Google Maps showing next beach cleanup location at Pasir Ris">
+                        </iframe>
+                        <div class="map-overlay">
+                            <div class="map-marker">
+                                <div class="map-marker__pin">📍</div>
+                                <div class="map-marker__label">
+                                    <strong>Next Cleanup</strong><br>
+                                    Pasir Ris Beach<br>
+                                    <small>📅 Coming Soon</small>
+                                </div>
+                            </div>
+                            <button class="btn btn--secondary btn--small map-overlay__button" id="enable-location-btn">
+                                📍 Find My Location
                             </button>
                         </div>
                     </div>
