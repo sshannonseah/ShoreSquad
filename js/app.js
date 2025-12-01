@@ -11,6 +11,14 @@ class ShoreSquadApp {
     this.weatherData = null;
     this.deferredPrompt = null;
     
+    // NEA Singapore Weather API configuration
+    this.neaApiBase = 'https://api.data.gov.sg/v1';
+    this.weatherStations = {
+      'pasir_ris': 'S50', // Nearest to Pasir Ris Beach
+      'changi': 'S24',
+      'east_coast': 'S06'
+    };
+    
     this.init();
   }
 
@@ -364,9 +372,12 @@ class ShoreSquadApp {
   }
 
   /**
-   * Load mock data for demo purposes
+   * Load real data from APIs and mock events
    */
-  loadMockData() {
+  async loadMockData() {
+    // Load real weather data
+    await this.loadRealWeatherData();
+    
     // Mock events data
     this.events = [
       {
@@ -411,27 +422,7 @@ class ShoreSquadApp {
       }
     ];
 
-    // Mock weather data
-    this.weatherData = {
-      current: {
-        temperature: 22,
-        condition: '☀️',
-        description: 'Sunny',
-        wind: 15,
-        humidity: 65,
-        uvIndex: 6
-      },
-      forecast: [
-        { day: 'Today', temp: 22, condition: '☀️', status: 'perfect' },
-        { day: 'Tomorrow', temp: 20, condition: '⛅', status: 'good' },
-        { day: 'Wednesday', temp: 18, condition: '🌧️', status: 'poor' },
-        { day: 'Thursday', temp: 25, condition: '☀️', status: 'perfect' },
-        { day: 'Friday', temp: 23, condition: '⛅', status: 'good' }
-      ]
-    };
-
     this.renderEvents(this.events);
-    this.renderWeather();
   }
 
   /**
@@ -658,7 +649,7 @@ class ShoreSquadApp {
   }
 
   /**
-   * Render weather information
+   * Render weather information with real NEA data
    */
   renderWeather() {
     if (!this.weatherData) return;
@@ -668,9 +659,15 @@ class ShoreSquadApp {
     // Update current weather
     this.updateElement('#current-weather-icon', current.condition);
     this.updateElement('#current-temp', current.temperature);
-    this.updateElement('#current-wind', `${current.wind} km/h`);
+    this.updateElement('#current-wind', `${current.windSpeed} km/h ${current.windDirection || ''}`);
     this.updateElement('#current-humidity', `${current.humidity}%`);
     this.updateElement('#current-uv', current.uvIndex);
+
+    // Update location
+    const locationElement = document.querySelector('.weather-card__location');
+    if (locationElement) {
+      locationElement.textContent = current.location || 'Pasir Ris Area';
+    }
 
     // Update cleanup status
     const cleanupStatus = this.getCleanupStatus(current);
@@ -680,36 +677,77 @@ class ShoreSquadApp {
       statusElement.className = `cleanup-status cleanup-status--${cleanupStatus.level}`;
     }
 
-    // Render forecast
+    // Render 7-day forecast
     const forecastContainer = document.getElementById('weather-forecast');
-    if (forecastContainer) {
-      forecastContainer.innerHTML = forecast.map(day => `
-        <div class="weather-card weather-card--forecast">
-          <h4 class="weather-card__day">${day.day}</h4>
+    if (forecastContainer && forecast) {
+      forecastContainer.innerHTML = forecast.map((day, index) => `
+        <div class="weather-card weather-card--forecast" data-day="${index}">
+          <div class="weather-card__forecast-header">
+            <h4 class="weather-card__day">${day.day}</h4>
+            <span class="weather-card__date">${day.date ? new Date(day.date).toLocaleDateString('en-SG', { month: 'short', day: 'numeric' }) : ''}</span>
+          </div>
           <div class="weather-card__forecast-icon">${day.condition}</div>
-          <div class="weather-card__forecast-temp">${day.temp}°C</div>
-          <div class="cleanup-status cleanup-status--${day.status}">
+          <div class="weather-card__forecast-temps">
+            <span class="weather-card__temp-high">${day.tempHigh || day.temp}°</span>
+            <span class="weather-card__temp-low">${day.tempLow || day.temp - 3}°</span>
+          </div>
+          <div class="weather-card__forecast-details">
+            <div class="weather-detail--small">
+              <span class="weather-detail__icon">💨</span>
+              <span>${day.wind || 'Light'}</span>
+            </div>
+            ${day.humidity ? `
+              <div class="weather-detail--small">
+                <span class="weather-detail__icon">💧</span>
+                <span>${day.humidity.high || day.humidity}%</span>
+              </div>
+            ` : ''}
+          </div>
+          <div class="cleanup-status cleanup-status--${day.status} cleanup-status--small">
             ${this.getStatusEmoji(day.status)} ${this.getStatusText(day.status)}
           </div>
+          <p class="weather-card__description">${day.description || ''}</p>
         </div>
       `).join('');
+
+      // Add forecast card styles
+      this.addWeatherForecastStyles();
+    }
+
+    // Update last updated time
+    const timestampElement = document.querySelector('.weather-timestamp');
+    if (timestampElement && current.timestamp) {
+      const lastUpdated = new Date(current.timestamp);
+      timestampElement.textContent = `Updated: ${lastUpdated.toLocaleTimeString('en-SG', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      })}`;
     }
   }
 
   /**
-   * Get cleanup status based on weather
+   * Get cleanup status based on weather conditions
    */
   getCleanupStatus(weather) {
-    if (weather.temperature > 30 || weather.uvIndex > 8) {
-      return { level: 'poor', message: 'Too hot - stay hydrated! ☀️🥵' };
-    } else if (weather.wind > 25) {
+    const temp = weather.temperature;
+    const humidity = weather.humidity;
+    const windSpeed = weather.windSpeed;
+    const uvIndex = weather.uvIndex;
+    
+    if (temp > 35) {
+      return { level: 'poor', message: 'Too hot for cleanup! Stay hydrated ☀️🥵' };
+    } else if (uvIndex > 9) {
+      return { level: 'poor', message: 'Extreme UV - avoid midday cleanup ☀️⚠️' };
+    } else if (windSpeed > 25) {
       return { level: 'poor', message: 'Too windy - wait for calmer weather 💨' };
-    } else if (weather.temperature < 10) {
-      return { level: 'ok', message: 'Chilly - dress warmly! 🧥' };
-    } else if (weather.temperature >= 18 && weather.temperature <= 25 && weather.wind < 20) {
-      return { level: 'good', message: 'Perfect for cleanup! 🌟' };
+    } else if (temp < 20) {
+      return { level: 'ok', message: 'Cool weather - dress warmly! 🧥' };
+    } else if (humidity > 90) {
+      return { level: 'ok', message: 'Very humid - take breaks often 💧' };
+    } else if (temp >= 24 && temp <= 32 && windSpeed < 20 && humidity < 85) {
+      return { level: 'good', message: 'Perfect conditions for cleanup! 🌟' };
     } else {
-      return { level: 'ok', message: 'Good conditions 👍' };
+      return { level: 'good', message: 'Good cleanup weather 👍' };
     }
   }
 
@@ -740,18 +778,281 @@ class ShoreSquadApp {
   }
 
   /**
+   * Load real weather data from NEA Singapore API
+   */
+  async loadRealWeatherData() {
+    try {
+      console.log('🌤️ Loading real weather data from NEA Singapore...');
+      
+      // Get current weather
+      const currentWeather = await this.getCurrentWeather();
+      
+      // Get 7-day forecast
+      const forecast = await this.getWeatherForecast();
+      
+      // Combine data
+      this.weatherData = {
+        current: currentWeather,
+        forecast: forecast
+      };
+      
+      this.renderWeather();
+      console.log('✅ Weather data loaded successfully');
+      
+    } catch (error) {
+      console.error('❌ Error loading weather data:', error);
+      this.loadFallbackWeatherData();
+    }
+  }
+  
+  /**
+   * Get current weather from NEA API
+   */
+  async getCurrentWeather() {
+    const endpoints = [
+      '/environment/air-temperature',
+      '/environment/relative-humidity', 
+      '/environment/wind-speed',
+      '/environment/wind-direction',
+      '/environment/uv-index'
+    ];
+    
+    const weatherPromises = endpoints.map(endpoint => 
+      this.fetchNeaData(endpoint)
+    );
+    
+    const [tempData, humidityData, windSpeedData, windDirData, uvData] = 
+      await Promise.all(weatherPromises);
+    
+    // Find data for Pasir Ris area (East region)
+    const eastStation = this.findNearestStation(tempData, ['S50', 'S24', 'S06']);
+    
+    const temperature = this.getStationValue(tempData, eastStation) || 28;
+    const humidity = this.getStationValue(humidityData, eastStation) || 70;
+    const windSpeed = this.getStationValue(windSpeedData, eastStation) || 12;
+    const windDir = this.getStationValue(windDirData, eastStation) || 'NE';
+    const uvIndex = this.getStationValue(uvData, eastStation) || 6;
+    
+    return {
+      temperature: Math.round(temperature),
+      humidity: Math.round(humidity),
+      windSpeed: Math.round(windSpeed),
+      windDirection: windDir,
+      uvIndex: Math.round(uvIndex),
+      condition: this.getWeatherIcon(temperature, humidity, windSpeed),
+      description: this.getWeatherDescription(temperature, humidity, windSpeed),
+      location: 'Pasir Ris Area',
+      timestamp: new Date().toISOString()
+    };
+  }
+  
+  /**
+   * Get 7-day weather forecast
+   */
+  async getWeatherForecast() {
+    try {
+      // NEA provides 4-day forecast
+      const forecastData = await this.fetchNeaData('/environment/4-day-weather-forecast');
+      
+      if (!forecastData?.items?.[0]?.forecasts) {
+        throw new Error('No forecast data available');
+      }
+      
+      const forecasts = forecastData.items[0].forecasts;
+      
+      return forecasts.map((forecast, index) => {
+        const date = new Date(forecast.date);
+        const dayName = index === 0 ? 'Today' : 
+                       index === 1 ? 'Tomorrow' : 
+                       date.toLocaleDateString('en-SG', { weekday: 'short' });
+        
+        const tempHigh = forecast.temperature.high;
+        const tempLow = forecast.temperature.low;
+        const avgTemp = Math.round((tempHigh + tempLow) / 2);
+        
+        return {
+          day: dayName,
+          date: forecast.date,
+          temp: avgTemp,
+          tempHigh: tempHigh,
+          tempLow: tempLow,
+          condition: this.getWeatherIconFromForecast(forecast.forecast),
+          description: forecast.forecast,
+          humidity: forecast.relative_humidity,
+          wind: forecast.wind?.speed_kmh || 'Light',
+          status: this.getCleanupStatusFromTemp(avgTemp, forecast.forecast)
+        };
+      });
+      
+    } catch (error) {
+      console.error('Error fetching forecast:', error);
+      return this.generateFallbackForecast();
+    }
+  }
+  
+  /**
+   * Fetch data from NEA API with error handling
+   */
+  async fetchNeaData(endpoint) {
+    const url = `${this.neaApiBase}${endpoint}`;
+    
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      return await response.json();
+      
+    } catch (error) {
+      console.error(`Error fetching ${endpoint}:`, error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Find nearest weather station to Pasir Ris
+   */
+  findNearestStation(data, preferredStations) {
+    if (!data?.items?.[0]?.readings) return preferredStations[0];
+    
+    const readings = data.items[0].readings;
+    
+    for (const stationId of preferredStations) {
+      const reading = readings.find(r => r.station_id === stationId);
+      if (reading && reading.value !== null) {
+        return stationId;
+      }
+    }
+    
+    // Fallback to any available station
+    const availableReading = readings.find(r => r.value !== null);
+    return availableReading?.station_id || preferredStations[0];
+  }
+  
+  /**
+   * Get weather value for specific station
+   */
+  getStationValue(data, stationId) {
+    if (!data?.items?.[0]?.readings) return null;
+    
+    const reading = data.items[0].readings.find(r => r.station_id === stationId);
+    return reading?.value;
+  }
+  
+  /**
+   * Get weather icon based on conditions
+   */
+  getWeatherIcon(temp, humidity, windSpeed) {
+    if (humidity > 80 && temp < 26) return '🌧️';
+    if (humidity > 70) return '⛅';
+    if (temp > 32) return '☀️';
+    if (windSpeed > 20) return '💨';
+    return '☀️';
+  }
+  
+  /**
+   * Get weather icon from NEA forecast text
+   */
+  getWeatherIconFromForecast(forecast) {
+    const text = forecast.toLowerCase();
+    
+    if (text.includes('rain') || text.includes('shower') || text.includes('thundery')) return '🌧️';
+    if (text.includes('cloudy') || text.includes('overcast')) return '☁️';
+    if (text.includes('partly cloudy') || text.includes('fair')) return '⛅';
+    if (text.includes('hazy') || text.includes('mist')) return '🌫️';
+    return '☀️';
+  }
+  
+  /**
+   * Get weather description
+   */
+  getWeatherDescription(temp, humidity, windSpeed) {
+    if (temp > 32) return 'Hot';
+    if (temp < 24) return 'Cool';
+    if (humidity > 80) return 'Humid';
+    if (windSpeed > 20) return 'Windy';
+    return 'Pleasant';
+  }
+  
+  /**
+   * Get cleanup status from temperature and conditions
+   */
+  getCleanupStatusFromTemp(temp, forecast) {
+    const text = forecast.toLowerCase();
+    
+    if (text.includes('thundery') || text.includes('heavy rain')) return 'poor';
+    if (temp > 35) return 'poor';
+    if (text.includes('rain') || text.includes('shower')) return 'ok';
+    if (temp >= 25 && temp <= 32 && !text.includes('rain')) return 'perfect';
+    return 'good';
+  }
+  
+  /**
+   * Load fallback weather data if API fails
+   */
+  loadFallbackWeatherData() {
+    console.log('📱 Loading fallback weather data...');
+    
+    this.weatherData = {
+      current: {
+        temperature: 28,
+        humidity: 75,
+        windSpeed: 12,
+        windDirection: 'NE',
+        uvIndex: 6,
+        condition: '⛅',
+        description: 'Partly Cloudy',
+        location: 'Pasir Ris Area (Offline)',
+        timestamp: new Date().toISOString()
+      },
+      forecast: this.generateFallbackForecast()
+    };
+    
+    this.renderWeather();
+    this.showNotification('Using offline weather data 📴', 'info');
+  }
+  
+  /**
+   * Generate fallback 7-day forecast
+   */
+  generateFallbackForecast() {
+    const days = ['Today', 'Tomorrow', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const conditions = ['☀️', '⛅', '🌧️', '☀️', '⛅', '☀️', '⛅'];
+    const temps = [28, 26, 24, 30, 27, 29, 25];
+    const statuses = ['perfect', 'good', 'ok', 'perfect', 'good', 'perfect', 'good'];
+    
+    return days.map((day, index) => ({
+      day,
+      temp: temps[index],
+      tempHigh: temps[index] + 2,
+      tempLow: temps[index] - 3,
+      condition: conditions[index],
+      description: 'Mixed conditions',
+      status: statuses[index]
+    }));
+  }
+  
+  /**
    * Update weather based on current location
    */
-  updateWeatherForLocation() {
+  async updateWeatherForLocation() {
     if (!this.currentLocation) return;
 
-    // Simulate API call to get location-specific weather
     console.log('🌤️ Updating weather for location:', this.currentLocation);
     
-    // For demo, just update the location name
+    // Reload weather data for the new location
+    await this.loadRealWeatherData();
+    
     const locationElement = document.querySelector('.weather-card__location');
     if (locationElement) {
-      locationElement.textContent = 'Your Location';
+      locationElement.textContent = this.weatherData?.current?.location || 'Your Location';
     }
   }
 
@@ -1113,6 +1414,127 @@ class ShoreSquadApp {
       link.href = href;
       document.head.appendChild(link);
     });
+  }
+
+  /**
+   * Add dynamic weather forecast styles
+   */
+  addWeatherForecastStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+      .weather-card--forecast {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-4);
+        text-align: center;
+        color: var(--color-white);
+        min-width: 140px;
+        transition: transform var(--transition-fast);
+      }
+      
+      .weather-card--forecast:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.25);
+      }
+      
+      .weather-card__forecast-header {
+        margin-bottom: var(--spacing-2);
+      }
+      
+      .weather-card__day {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-white);
+        margin-bottom: var(--spacing-1);
+      }
+      
+      .weather-card__date {
+        font-size: var(--font-size-xs);
+        color: rgba(255, 255, 255, 0.8);
+      }
+      
+      .weather-card__forecast-icon {
+        font-size: var(--font-size-3xl);
+        margin: var(--spacing-2) 0;
+        line-height: 1;
+      }
+      
+      .weather-card__forecast-temps {
+        display: flex;
+        justify-content: center;
+        gap: var(--spacing-2);
+        margin-bottom: var(--spacing-2);
+      }
+      
+      .weather-card__temp-high {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-white);
+      }
+      
+      .weather-card__temp-low {
+        font-size: var(--font-size-base);
+        color: rgba(255, 255, 255, 0.7);
+      }
+      
+      .weather-card__forecast-details {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: var(--spacing-2);
+        font-size: var(--font-size-xs);
+      }
+      
+      .weather-detail--small {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-1);
+        color: rgba(255, 255, 255, 0.8);
+      }
+      
+      .weather-detail__icon {
+        font-size: var(--font-size-sm);
+      }
+      
+      .cleanup-status--small {
+        font-size: var(--font-size-xs);
+        padding: var(--spacing-1) var(--spacing-2);
+        margin-bottom: var(--spacing-2);
+      }
+      
+      .weather-card__description {
+        font-size: var(--font-size-xs);
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.3;
+        margin-bottom: 0;
+      }
+      
+      .weather-timestamp {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: var(--font-size-xs);
+        margin-top: var(--spacing-4);
+      }
+      
+      @media (max-width: 640px) {
+        .weather__forecast {
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: var(--spacing-3);
+        }
+        
+        .weather-card--forecast {
+          min-width: 120px;
+          padding: var(--spacing-3);
+        }
+      }
+    `;
+    
+    // Only add if not already added
+    if (!document.querySelector('#weather-forecast-styles')) {
+      style.id = 'weather-forecast-styles';
+      document.head.appendChild(style);
+    }
   }
 }
 

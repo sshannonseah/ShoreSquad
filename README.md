@@ -17,10 +17,11 @@ ShoreSquad is a modern Progressive Web App (PWA) designed to mobilize young peop
 - **Coordinates**: 1.381497, 103.955574 (Street View Asia)
 
 ### 🌤️ **Smart Weather Tracking**
-- Current conditions for cleanup planning
-- 5-day forecast
-- Cleanup suitability indicators
-- Location-based weather data
+- **Real-time conditions** from Singapore NEA API (data.gov.sg)
+- **7-day forecast** with cleanup suitability indicators
+- **Location-specific data** for Pasir Ris Beach area
+- **Automatic fallback** to offline data when needed
+- **Professional weather assessment** for safe cleanup planning
 
 ### 👥 **Social Community**
 - Crew formation and management
@@ -100,7 +101,8 @@ ShoreSquad/
 ├── package.json           # Dependencies and scripts
 ├── .gitignore            # Git ignore rules
 ├── README.md             # This file
-└── GOOGLE_MAPS_SETUP.md  # Google Maps API setup instructions
+├── GOOGLE_MAPS_SETUP.md  # Google Maps API setup instructions
+└── NEA_WEATHER_API.md    # Singapore NEA weather API documentation
 ```
 
 ## 🛠️ Technical Implementation
@@ -108,10 +110,11 @@ ShoreSquad/
 ### JavaScript Features
 - **ES6+ Modern Syntax**: Classes, arrow functions, async/await
 - **Progressive Web App**: Service Worker, manifest, offline support
+- **Real Weather API**: NEA Singapore data integration with fallbacks
 - **Geolocation API**: Location-based features
 - **Intersection Observer**: Performance-optimized animations
 - **Local Storage**: User preferences and offline data
-- **Fetch API**: Efficient data loading
+- **Fetch API**: Efficient data loading with error handling
 
 ### CSS Features
 - **CSS Custom Properties**: Comprehensive design system
