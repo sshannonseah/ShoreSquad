@@ -3,6 +3,15 @@
    Modern, accessible, mobile-first design
    ======================================== */
 
+/* Accessibility helpers */
+[aria-hidden="true"] {
+  display: none !important;
+}
+
+.events__loading[aria-hidden="false"] {
+  display: flex !important;
+}
+
 /* CSS Custom Properties (Variables) */
 :root {
   /* Colors - Ocean-inspired palette */
@@ -921,6 +930,34 @@ a:focus {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.events__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-12);
+  text-align: center;
+  color: var(--color-gray-500);
+}
+
+.events__empty-icon {
+  font-size: 3rem;
+  opacity: 0.6;
+  margin-bottom: var(--spacing-2);
+}
+
+.events__empty h3 {
+  color: var(--color-gray-700);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.events__empty p {
+  margin: 0;
+  max-width: 300px;
 }
 
 /* ========================================

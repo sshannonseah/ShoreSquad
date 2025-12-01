@@ -201,15 +201,17 @@ class ShoreSquadApp {
   filterEvents(filter) {
     console.log(`🔍 Filtering events by: ${filter}`);
     
-    let filteredEvents = this.events;
+    let filteredEvents = [...this.events]; // Create a copy
+    const today = new Date();
     
     switch (filter) {
       case 'this-week':
         const weekFromNow = new Date();
-        weekFromNow.setDate(weekFromNow.getDate() + 7);
-        filteredEvents = this.events.filter(event => 
-          new Date(event.date) <= weekFromNow
-        );
+        weekFromNow.setDate(today.getDate() + 7);
+        filteredEvents = this.events.filter(event => {
+          const eventDate = new Date(event.date);
+          return eventDate >= today && eventDate <= weekFromNow;
+        });
         break;
         
       case 'weekend':
@@ -226,10 +228,12 @@ class ShoreSquadApp {
         );
         break;
         
-      default: // 'all'
+      case 'all':
+      default:
         filteredEvents = this.events;
     }
     
+    console.log(`📊 Showing ${filteredEvents.length} of ${this.events.length} events`);
     this.renderEvents(filteredEvents);
   }
 
@@ -390,6 +394,64 @@ class ShoreSquadApp {
         longitude: 151.2767,
         participants: 24,
         organizer: 'Sydney Shore Squad',
+        description: 'Join us for a morning cleanup at beautiful Bondi Beach! We\'ll provide all equipment and refreshments.',
+        userJoined: false
+      },
+      {
+        id: 2,
+        title: 'Pasir Ris Beach Cleanup',
+        date: '2024-12-07',
+        time: '08:00',
+        location: 'Pasir Ris Beach, Singapore',
+        latitude: 1.381497,
+        longitude: 103.955574,
+        participants: 32,
+        organizer: 'East Coast Green Squad',
+        description: 'Clean up our beautiful Pasir Ris Beach! Perfect for families and first-time volunteers.',
+        userJoined: true
+      },
+      {
+        id: 3,
+        title: 'Manly Cove Community Clean',
+        date: '2024-12-14',
+        time: '10:00',
+        location: 'Manly Cove, Sydney',
+        latitude: -33.7969,
+        longitude: 151.2840,
+        participants: 18,
+        organizer: 'Northern Beaches Crew',
+        description: 'Weekend cleanup with the local community. All welcome!',
+        userJoined: false
+      },
+      {
+        id: 4,
+        title: 'Coogee Coastal Care',
+        date: '2024-12-15',
+        time: '08:30',
+        location: 'Coogee Beach, Sydney',
+        latitude: -33.9249,
+        longitude: 151.2578,
+        participants: 29,
+        organizer: 'Eastern Suburbs Squad',
+        description: 'Early bird cleanup session. Coffee and pastries provided!',
+        userJoined: false,
+        crewMember: true
+      }
+    ];
+
+    this.renderEvents(this.events);
+  }
+    this.events = [
+      {
+        id: 1,
+        title: 'Bondi Beach Cleanup',
+        date: '2024-12-08',
+        time: '09:00',
+        location: 'Bondi Beach, Sydney',
+        latitude: -33.8915,
+        longitude: 151.2767,
+        participants: 24,
+        organizer: 'Sydney Shore Squad',
         description: 'Join us for a morning cleanup at beautiful Bondi Beach!',
         userJoined: true
       },
@@ -434,63 +496,68 @@ class ShoreSquadApp {
     
     if (!eventsGrid) return;
 
-    // Show loading
+    // Hide loading immediately since we have data
     if (eventsLoading) {
-      eventsLoading.setAttribute('aria-hidden', 'false');
+      eventsLoading.setAttribute('aria-hidden', 'true');
     }
 
-    // Simulate loading delay
-    setTimeout(() => {
-      eventsGrid.innerHTML = events.map(event => `
-        <article class="event-card" data-event-id="${event.id}">
-          <div class="event-card__header">
-            <div class="event-card__date">
-              <span class="event-card__day">${this.formatDate(event.date, 'day')}</span>
-              <span class="event-card__month">${this.formatDate(event.date, 'month')}</span>
-            </div>
-            <div class="event-card__status ${event.userJoined ? 'event-card__status--joined' : ''}">
-              ${event.userJoined ? '✓ Joined' : '+ Join'}
-            </div>
-          </div>
-          
-          <div class="event-card__content">
-            <h3 class="event-card__title">${event.title}</h3>
-            <div class="event-card__details">
-              <div class="event-card__detail">
-                <span class="event-card__icon">📍</span>
-                <span>${event.location}</span>
-              </div>
-              <div class="event-card__detail">
-                <span class="event-card__icon">⏰</span>
-                <span>${event.time}</span>
-              </div>
-              <div class="event-card__detail">
-                <span class="event-card__icon">👥</span>
-                <span>${event.participants} going</span>
-              </div>
-            </div>
-            <p class="event-card__description">${event.description}</p>
-          </div>
-          
-          <div class="event-card__actions">
-            <button class="btn btn--primary btn--small" onclick="app.${event.userJoined ? 'viewEventDetails' : 'joinEvent'}(${event.id})">
-              ${event.userJoined ? 'View Details' : 'Join Event'}
-            </button>
-            <button class="btn btn--text btn--small" onclick="app.shareEvent(${event.id})">
-              Share
-            </button>
-          </div>
-        </article>
-      `).join('');
+    // Handle empty state
+    if (!events || events.length === 0) {
+      eventsGrid.innerHTML = `
+        <div class="events__empty">
+          <div class="events__empty-icon">🏖️</div>
+          <h3>No events found</h3>
+          <p>Try adjusting your filter or check back later for new cleanups!</p>
+        </div>
+      `;
+      return;
+    }
 
-      // Hide loading
-      if (eventsLoading) {
-        eventsLoading.setAttribute('aria-hidden', 'true');
-      }
+    // Render events immediately
+    eventsGrid.innerHTML = events.map(event => `
+      <article class="event-card" data-event-id="${event.id}">
+        <div class="event-card__header">
+          <div class="event-card__date">
+            <span class="event-card__day">${this.formatDate(event.date, 'day')}</span>
+            <span class="event-card__month">${this.formatDate(event.date, 'month')}</span>
+          </div>
+          <div class="event-card__status ${event.userJoined ? 'event-card__status--joined' : ''}">
+            ${event.userJoined ? '✓ Joined' : '+ Join'}
+          </div>
+        </div>
+        
+        <div class="event-card__content">
+          <h3 class="event-card__title">${event.title}</h3>
+          <div class="event-card__details">
+            <div class="event-card__detail">
+              <span class="event-card__icon">📍</span>
+              <span>${event.location}</span>
+            </div>
+            <div class="event-card__detail">
+              <span class="event-card__icon">⏰</span>
+              <span>${event.time}</span>
+            </div>
+            <div class="event-card__detail">
+              <span class="event-card__icon">👥</span>
+              <span>${event.participants} going</span>
+            </div>
+          </div>
+          <p class="event-card__description">${event.description}</p>
+        </div>
+        
+        <div class="event-card__actions">
+          <button class="btn btn--primary btn--small" onclick="app.${event.userJoined ? 'viewEventDetails' : 'joinEvent'}(${event.id})">
+            ${event.userJoined ? 'View Details' : 'Join Event'}
+          </button>
+          <button class="btn btn--text btn--small" onclick="app.shareEvent(${event.id})">
+            Share
+          </button>
+        </div>
+      </article>
+    `).join('');
 
-      // Add event card styles
-      this.addEventCardStyles();
-    }, 800);
+    // Add event card styles
+    this.addEventCardStyles();
   }
 
   /**
