@@ -4,9 +4,9 @@
   "description": "Rally your crew, track weather, and hit the next beach cleanup with our dope map app!",
   "main": "index.html",
   "scripts": {
-    "start": "live-server --host=0.0.0.0 --port=3000 --open=/",
-    "dev": "live-server --host=localhost --port=3000 --watch=css/,js/ --open=/",
-    "serve": "live-server",
+    "start": "live-server --host=0.0.0.0 --port=3000 --open=index.html --entry-file=index.html",
+    "dev": "live-server --host=localhost --port=3000 --watch=css/,js/ --open=index.html --entry-file=index.html",
+    "serve": "live-server --open=index.html --entry-file=index.html",
     "build": "echo 'No build process needed for static site'",
     "test": "echo 'No tests specified yet'"
   },
