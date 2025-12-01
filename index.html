@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Rally your crew, track weather, and hit the next beach cleanup with our dope map app!">
+    <meta name="theme-color" content="#2E86AB">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="ShoreSquad - Beach Cleanup Community">
+    <meta property="og:description" content="Rally your crew, track weather, and hit the next beach cleanup!">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./assets/og-image.jpg">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
+    
+    <!-- Manifest for PWA -->
+    <link rel="manifest" href="./manifest.json">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/styles.css">
+    
+    <title>ShoreSquad - Beach Cleanup Community</title>
+</head>
+<body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main" class="skip-link">Skip to main content</a>
+    
+    <!-- Header -->
+    <header class="header" role="banner">
+        <nav class="nav" role="navigation" aria-label="Main navigation">
+            <div class="nav__container">
+                <a href="#" class="nav__logo" aria-label="ShoreSquad home">
+                    <span class="nav__logo-icon">🌊</span>
+                    <span class="nav__logo-text">ShoreSquad</span>
+                </a>
+                
+                <button class="nav__toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span class="nav__toggle-line"></span>
+                    <span class="nav__toggle-line"></span>
+                    <span class="nav__toggle-line"></span>
+                </button>
+                
+                <ul class="nav__menu" role="menubar">
+                    <li class="nav__item" role="none">
+                        <a href="#events" class="nav__link" role="menuitem">Events</a>
+                    </li>
+                    <li class="nav__item" role="none">
+                        <a href="#map" class="nav__link" role="menuitem">Map</a>
+                    </li>
+                    <li class="nav__item" role="none">
+                        <a href="#crew" class="nav__link" role="menuitem">My Crew</a>
+                    </li>
+                    <li class="nav__item" role="none">
+                        <a href="#weather" class="nav__link" role="menuitem">Weather</a>
+                    </li>
+                    <li class="nav__item" role="none">
+                        <a href="#profile" class="nav__link nav__link--cta" role="menuitem">Join Now</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main" class="main" role="main">
+        <!-- Hero Section -->
+        <section class="hero" aria-labelledby="hero-heading">
+            <div class="hero__container">
+                <div class="hero__content">
+                    <h1 id="hero-heading" class="hero__title">
+                        Rally your crew, 
+                        <span class="hero__title--highlight">clean the coast!</span>
+                    </h1>
+                    <p class="hero__description">
+                        Track weather, discover beach cleanups, and make eco-action fun with your squad. 
+                        Join the movement to protect our shores! 🏖️
+                    </p>
+                    <div class="hero__actions">
+                        <button class="btn btn--primary" id="get-started-btn">
+                            Get Started
+                            <span class="btn__icon">→</span>
+                        </button>
+                        <button class="btn btn--secondary" id="find-events-btn">
+                            <span class="btn__icon">📍</span>
+                            Find Events Near Me
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="hero__visual">
+                    <div class="hero__image-placeholder">
+                        <!-- Placeholder for hero image/animation -->
+                        <div class="hero__beach-scene">
+                            <div class="hero__wave hero__wave--1"></div>
+                            <div class="hero__wave hero__wave--2"></div>
+                            <div class="hero__wave hero__wave--3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" aria-labelledby="features-heading">
+            <div class="features__container">
+                <h2 id="features-heading" class="features__title">Why ShoreSquad rocks</h2>
+                
+                <div class="features__grid">
+                    <article class="feature-card">
+                        <div class="feature-card__icon" aria-hidden="true">🗺️</div>
+                        <h3 class="feature-card__title">Interactive Map</h3>
+                        <p class="feature-card__description">
+                            Discover cleanup events and polluted beaches near you with our real-time map
+                        </p>
+                    </article>
+                    
+                    <article class="feature-card">
+                        <div class="feature-card__icon" aria-hidden="true">🌤️</div>
+                        <h3 class="feature-card__title">Weather Tracking</h3>
+                        <p class="feature-card__description">
+                            Smart weather integration helps you plan the perfect cleanup day
+                        </p>
+                    </article>
+                    
+                    <article class="feature-card">
+                        <div class="feature-card__icon" aria-hidden="true">👥</div>
+                        <h3 class="feature-card__title">Squad Up</h3>
+                        <p class="feature-card__description">
+                            Rally your friends, join crews, and track your collective impact together
+                        </p>
+                    </article>
+                    
+                    <article class="feature-card">
+                        <div class="feature-card__icon" aria-hidden="true">🏆</div>
+                        <h3 class="feature-card__title">Impact Tracking</h3>
+                        <p class="feature-card__description">
+                            See your environmental impact with photos, stats, and achievement badges
+                        </p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Map Section -->
+        <section id="map" class="map-section" aria-labelledby="map-heading">
+            <div class="map-section__container">
+                <h2 id="map-heading" class="map-section__title">Find cleanup events near you</h2>
+                
+                <div class="map-container">
+                    <div id="map-placeholder" class="map-placeholder">
+                        <div class="map-placeholder__content">
+                            <p class="map-placeholder__text">Interactive map loading...</p>
+                            <button class="btn btn--secondary" id="enable-location-btn">
+                                📍 Enable Location Services
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Map Controls -->
+                <div class="map-controls">
+                    <button class="map-control" id="show-events-btn" aria-pressed="true">
+                        <span class="map-control__icon">📅</span>
+                        Events
+                    </button>
+                    <button class="map-control" id="show-weather-btn" aria-pressed="false">
+                        <span class="map-control__icon">🌤️</span>
+                        Weather
+                    </button>
+                    <button class="map-control" id="show-crews-btn" aria-pressed="false">
+                        <span class="map-control__icon">👥</span>
+                        Crews
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Events Section -->
+        <section id="events" class="events" aria-labelledby="events-heading">
+            <div class="events__container">
+                <h2 id="events-heading" class="events__title">Upcoming cleanups</h2>
+                
+                <div class="events__filters">
+                    <button class="filter-btn filter-btn--active" data-filter="all">
+                        All Events
+                    </button>
+                    <button class="filter-btn" data-filter="this-week">
+                        This Week
+                    </button>
+                    <button class="filter-btn" data-filter="weekend">
+                        Weekends
+                    </button>
+                    <button class="filter-btn" data-filter="my-crews">
+                        My Crews
+                    </button>
+                </div>
+                
+                <div class="events__grid" id="events-grid">
+                    <!-- Events will be populated by JavaScript -->
+                </div>
+                
+                <div class="events__loading" id="events-loading" aria-hidden="true">
+                    <div class="loading-spinner"></div>
+                    <p>Loading events...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weather Section -->
+        <section id="weather" class="weather" aria-labelledby="weather-heading">
+            <div class="weather__container">
+                <h2 id="weather-heading" class="weather__title">Perfect cleanup weather</h2>
+                
+                <div class="weather__current">
+                    <div class="weather-card weather-card--current">
+                        <div class="weather-card__header">
+                            <h3 class="weather-card__location">Your Location</h3>
+                            <p class="weather-card__date" id="current-date"></p>
+                        </div>
+                        
+                        <div class="weather-card__main">
+                            <div class="weather-card__icon" id="current-weather-icon">☀️</div>
+                            <div class="weather-card__temp">
+                                <span class="weather-card__temp-value" id="current-temp">--</span>
+                                <span class="weather-card__temp-unit">°C</span>
+                            </div>
+                        </div>
+                        
+                        <div class="weather-card__details">
+                            <div class="weather-detail">
+                                <span class="weather-detail__label">Wind</span>
+                                <span class="weather-detail__value" id="current-wind">-- km/h</span>
+                            </div>
+                            <div class="weather-detail">
+                                <span class="weather-detail__label">Humidity</span>
+                                <span class="weather-detail__value" id="current-humidity">--%</span>
+                            </div>
+                            <div class="weather-detail">
+                                <span class="weather-detail__label">UV Index</span>
+                                <span class="weather-detail__value" id="current-uv">--</span>
+                            </div>
+                        </div>
+                        
+                        <div class="weather-card__status">
+                            <span class="cleanup-status cleanup-status--good" id="cleanup-status">
+                                Perfect for cleanup! 🌟
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="weather__forecast" id="weather-forecast">
+                    <!-- 5-day forecast will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation (Mobile) -->
+    <nav class="bottom-nav" role="navigation" aria-label="Mobile navigation">
+        <a href="#events" class="bottom-nav__item bottom-nav__item--active">
+            <span class="bottom-nav__icon">📅</span>
+            <span class="bottom-nav__label">Events</span>
+        </a>
+        <a href="#map" class="bottom-nav__item">
+            <span class="bottom-nav__icon">🗺️</span>
+            <span class="bottom-nav__label">Map</span>
+        </a>
+        <a href="#weather" class="bottom-nav__item">
+            <span class="bottom-nav__icon">🌤️</span>
+            <span class="bottom-nav__label">Weather</span>
+        </a>
+        <a href="#crew" class="bottom-nav__item">
+            <span class="bottom-nav__icon">👥</span>
+            <span class="bottom-nav__label">Crew</span>
+        </a>
+        <a href="#profile" class="bottom-nav__item">
+            <span class="bottom-nav__icon">👤</span>
+            <span class="bottom-nav__label">Profile</span>
+        </a>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer__container">
+            <div class="footer__content">
+                <div class="footer__brand">
+                    <span class="footer__logo">🌊 ShoreSquad</span>
+                    <p class="footer__tagline">Making beach cleanups social, fun, and impactful</p>
+                </div>
+                
+                <div class="footer__links">
+                    <div class="footer__column">
+                        <h4 class="footer__heading">Community</h4>
+                        <ul class="footer__list">
+                            <li><a href="#" class="footer__link">Join a Crew</a></li>
+                            <li><a href="#" class="footer__link">Create Event</a></li>
+                            <li><a href="#" class="footer__link">Leaderboard</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer__column">
+                        <h4 class="footer__heading">Support</h4>
+                        <ul class="footer__list">
+                            <li><a href="#" class="footer__link">Help Center</a></li>
+                            <li><a href="#" class="footer__link">Contact Us</a></li>
+                            <li><a href="#" class="footer__link">Report Issue</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="footer__column">
+                        <h4 class="footer__heading">About</h4>
+                        <ul class="footer__list">
+                            <li><a href="#" class="footer__link">Our Mission</a></li>
+                            <li><a href="#" class="footer__link">Privacy</a></li>
+                            <li><a href="#" class="footer__link">Terms</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer__bottom">
+                <p class="footer__copyright">
+                    © 2024 ShoreSquad. Made with 💚 for our oceans.
+                </p>
+                <div class="footer__social">
+                    <a href="#" class="footer__social-link" aria-label="Follow us on Instagram">📷</a>
+                    <a href="#" class="footer__social-link" aria-label="Join our Discord">💬</a>
+                    <a href="#" class="footer__social-link" aria-label="Follow us on TikTok">🎵</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- PWA Install Prompt -->
+    <div class="install-prompt" id="install-prompt" aria-hidden="true">
+        <div class="install-prompt__content">
+            <div class="install-prompt__icon">📱</div>
+            <div class="install-prompt__text">
+                <h3 class="install-prompt__title">Install ShoreSquad</h3>
+                <p class="install-prompt__description">Get the full experience with our app!</p>
+            </div>
+            <div class="install-prompt__actions">
+                <button class="btn btn--primary btn--small" id="install-app-btn">Install</button>
+                <button class="btn btn--text btn--small" id="dismiss-install-btn">Maybe Later</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./js/app.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful: ', registration.scope);
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

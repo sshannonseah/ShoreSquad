@@ -1,0 +1,32 @@
+{
+  "name": "shoresquad-dev",
+  "version": "1.0.0",
+  "description": "Rally your crew, track weather, and hit the next beach cleanup with our dope map app!",
+  "main": "index.html",
+  "scripts": {
+    "start": "live-server --host=0.0.0.0 --port=3000 --open=/",
+    "dev": "live-server --host=localhost --port=3000 --watch=css/,js/ --open=/",
+    "serve": "live-server",
+    "build": "echo 'No build process needed for static site'",
+    "test": "echo 'No tests specified yet'"
+  },
+  "keywords": [
+    "beach-cleanup",
+    "environment",
+    "community",
+    "pwa",
+    "weather",
+    "maps",
+    "social"
+  ],
+  "author": "ShoreSquad Team",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
