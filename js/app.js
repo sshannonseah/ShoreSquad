@@ -473,7 +473,7 @@ class ShoreSquadApp {
           </div>
           
           <div class="event-card__actions">
-            <button class="btn btn--primary btn--small" onclick="app.joinEvent(${event.id})">
+            <button class="btn btn--primary btn--small" onclick="app.${event.userJoined ? 'viewEventDetails' : 'joinEvent'}(${event.id})">
               ${event.userJoined ? 'View Details' : 'Join Event'}
             </button>
             <button class="btn btn--text btn--small" onclick="app.shareEvent(${event.id})">
@@ -498,18 +498,178 @@ class ShoreSquadApp {
    */
   joinEvent(eventId) {
     const event = this.events.find(e => e.id === eventId);
-    if (event) {
-      event.userJoined = !event.userJoined;
-      event.participants += event.userJoined ? 1 : -1;
+    if (event && !event.userJoined) {
+      event.userJoined = true;
+      event.participants += 1;
       
-      this.showNotification(
-        event.userJoined ? 
-          `Joined "${event.title}"! 🎉` : 
-          `Left "${event.title}"`, 
-        'success'
-      );
-      
+      this.showNotification(`Joined "${event.title}"! 🎉`, 'success');
       this.renderEvents(this.events);
+    }
+  }
+
+  /**
+   * View event details
+   */
+  viewEventDetails(eventId) {
+    const event = this.events.find(e => e.id === eventId);
+    if (!event) return;
+
+    // Create and show event details modal
+    this.showEventDetailsModal(event);
+  }
+
+  /**
+   * Show event details in a modal
+   */
+  showEventDetailsModal(event) {
+    // Remove existing modal if any
+    const existingModal = document.querySelector('.event-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    // Create modal HTML
+    const modal = document.createElement('div');
+    modal.className = 'event-modal';
+    modal.innerHTML = `
+      <div class="event-modal__overlay" onclick="app.closeEventModal()"></div>
+      <div class="event-modal__content">
+        <div class="event-modal__header">
+          <h3 class="event-modal__title">${event.title}</h3>
+          <button class="event-modal__close" onclick="app.closeEventModal()" aria-label="Close modal">&times;</button>
+        </div>
+        
+        <div class="event-modal__body">
+          <div class="event-detail-grid">
+            <div class="event-detail-item">
+              <div class="event-detail__icon">📅</div>
+              <div class="event-detail__content">
+                <h4>Date & Time</h4>
+                <p>${this.formatDate(event.date, 'full')} at ${event.time}</p>
+              </div>
+            </div>
+            
+            <div class="event-detail-item">
+              <div class="event-detail__icon">📍</div>
+              <div class="event-detail__content">
+                <h4>Location</h4>
+                <p>${event.location}</p>
+              </div>
+            </div>
+            
+            <div class="event-detail-item">
+              <div class="event-detail__icon">👥</div>
+              <div class="event-detail__content">
+                <h4>Participants</h4>
+                <p>${event.participants} volunteers signed up</p>
+              </div>
+            </div>
+            
+            <div class="event-detail-item">
+              <div class="event-detail__icon">🏢</div>
+              <div class="event-detail__content">
+                <h4>Organizer</h4>
+                <p>${event.organizer}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="event-description-section">
+            <h4>About This Cleanup</h4>
+            <p>${event.description}</p>
+          </div>
+          
+          <div class="event-preparation-section">
+            <h4>What to Bring</h4>
+            <ul class="preparation-list">
+              <li>📦 Reusable bags or containers</li>
+              <li>🧤 Protective gloves (provided if needed)</li>
+              <li>💧 Water bottle</li>
+              <li>🧴 Sunscreen and hat</li>
+              <li>📱 Phone for photos and check-in</li>
+            </ul>
+          </div>
+          
+          ${event.userJoined ? `
+            <div class="event-status-joined">
+              <div class="status-icon">✅</div>
+              <div class="status-text">
+                <h4>You're registered!</h4>
+                <p>We'll send you a reminder 1 hour before the event starts.</p>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+        
+        <div class="event-modal__footer">
+          ${event.userJoined ? `
+            <button class="btn btn--secondary" onclick="app.leaveEvent(${event.id})">
+              Leave Event
+            </button>
+            <button class="btn btn--primary" onclick="app.shareEvent(${event.id})">
+              Share Event
+            </button>
+          ` : `
+            <button class="btn btn--secondary" onclick="app.closeEventModal()">
+              Maybe Later
+            </button>
+            <button class="btn btn--primary" onclick="app.joinEventFromModal(${event.id})">
+              Join This Cleanup
+            </button>
+          `}
+        </div>
+      </div>
+    `;
+
+    // Add modal to page
+    document.body.appendChild(modal);
+
+    // Add modal styles
+    this.addEventModalStyles();
+
+    // Animate in
+    requestAnimationFrame(() => {
+      modal.classList.add('event-modal--show');
+    });
+
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+  }
+
+  /**
+   * Close event details modal
+   */
+  closeEventModal() {
+    const modal = document.querySelector('.event-modal');
+    if (modal) {
+      modal.classList.remove('event-modal--show');
+      setTimeout(() => {
+        modal.remove();
+        document.body.style.overflow = '';
+      }, 300);
+    }
+  }
+
+  /**
+   * Join event from modal
+   */
+  joinEventFromModal(eventId) {
+    this.joinEvent(eventId);
+    this.closeEventModal();
+  }
+
+  /**
+   * Leave an event
+   */
+  leaveEvent(eventId) {
+    const event = this.events.find(e => e.id === eventId);
+    if (event && event.userJoined) {
+      event.userJoined = false;
+      event.participants = Math.max(0, event.participants - 1);
+      
+      this.showNotification(`Left "${event.title}"`, 'info');
+      this.renderEvents(this.events);
+      this.closeEventModal();
     }
   }
 
@@ -1077,6 +1237,13 @@ class ShoreSquadApp {
         return date.getDate().toString();
       case 'month':
         return date.toLocaleDateString('en-US', { month: 'short' });
+      case 'full':
+        return date.toLocaleDateString('en-SG', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
       default:
         return date.toLocaleDateString();
     }
@@ -1533,6 +1700,241 @@ class ShoreSquadApp {
     // Only add if not already added
     if (!document.querySelector('#weather-forecast-styles')) {
       style.id = 'weather-forecast-styles';
+      document.head.appendChild(style);
+    }
+  }
+
+  /**
+   * Add event modal styles
+   */
+  addEventModalStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+      .event-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: var(--z-modal);
+        opacity: 0;
+        visibility: hidden;
+        transition: all var(--transition-base);
+      }
+      
+      .event-modal--show {
+        opacity: 1;
+        visibility: visible;
+      }
+      
+      .event-modal__overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+      }
+      
+      .event-modal__content {
+        position: relative;
+        background: var(--color-white);
+        border-radius: var(--radius-xl);
+        max-width: 600px;
+        width: 90%;
+        max-height: 90vh;
+        margin: 5vh auto;
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+        transform: translateY(20px);
+        transition: transform var(--transition-base);
+      }
+      
+      .event-modal--show .event-modal__content {
+        transform: translateY(0);
+      }
+      
+      .event-modal__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-6);
+        border-bottom: 1px solid var(--color-gray-200);
+        background: var(--color-gray-50);
+      }
+      
+      .event-modal__title {
+        font-size: var(--font-size-xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--color-gray-900);
+        margin: 0;
+      }
+      
+      .event-modal__close {
+        background: none;
+        border: none;
+        font-size: var(--font-size-2xl);
+        color: var(--color-gray-400);
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-base);
+        transition: all var(--transition-fast);
+      }
+      
+      .event-modal__close:hover {
+        background: var(--color-gray-200);
+        color: var(--color-gray-600);
+      }
+      
+      .event-modal__body {
+        padding: var(--spacing-6);
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+      
+      .event-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--spacing-4);
+        margin-bottom: var(--spacing-6);
+      }
+      
+      @media (min-width: 768px) {
+        .event-detail-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      
+      .event-detail-item {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-3);
+        padding: var(--spacing-3);
+        background: var(--color-gray-50);
+        border-radius: var(--radius-lg);
+      }
+      
+      .event-detail__icon {
+        font-size: var(--font-size-xl);
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      
+      .event-detail__content h4 {
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-700);
+        margin: 0 0 var(--spacing-1) 0;
+      }
+      
+      .event-detail__content p {
+        font-size: var(--font-size-base);
+        color: var(--color-gray-900);
+        margin: 0;
+        font-weight: var(--font-weight-medium);
+      }
+      
+      .event-description-section,
+      .event-preparation-section {
+        margin-bottom: var(--spacing-6);
+      }
+      
+      .event-description-section h4,
+      .event-preparation-section h4 {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-900);
+        margin: 0 0 var(--spacing-3) 0;
+      }
+      
+      .event-description-section p {
+        color: var(--color-gray-700);
+        line-height: 1.6;
+        margin: 0;
+      }
+      
+      .preparation-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .preparation-list li {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-2);
+        padding: var(--spacing-2) 0;
+        color: var(--color-gray-700);
+        border-bottom: 1px solid var(--color-gray-100);
+      }
+      
+      .preparation-list li:last-child {
+        border-bottom: none;
+      }
+      
+      .event-status-joined {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-3);
+        padding: var(--spacing-4);
+        background: var(--color-success);
+        border-radius: var(--radius-lg);
+        color: var(--color-white);
+        margin-bottom: var(--spacing-4);
+      }
+      
+      .status-icon {
+        font-size: var(--font-size-2xl);
+        flex-shrink: 0;
+      }
+      
+      .status-text h4 {
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-semibold);
+        margin: 0 0 var(--spacing-1) 0;
+        color: var(--color-white);
+      }
+      
+      .status-text p {
+        font-size: var(--font-size-sm);
+        margin: 0;
+        color: rgba(255, 255, 255, 0.9);
+      }
+      
+      .event-modal__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--spacing-3);
+        padding: var(--spacing-6);
+        border-top: 1px solid var(--color-gray-200);
+        background: var(--color-gray-50);
+      }
+      
+      @media (max-width: 640px) {
+        .event-modal__content {
+          width: 95%;
+          margin: 2vh auto;
+          max-height: 95vh;
+        }
+        
+        .event-modal__footer {
+          flex-direction: column;
+        }
+        
+        .event-modal__footer .btn {
+          width: 100%;
+        }
+      }
+    `;
+    
+    // Only add if not already added
+    if (!document.querySelector('#event-modal-styles')) {
+      style.id = 'event-modal-styles';
       document.head.appendChild(style);
     }
   }
